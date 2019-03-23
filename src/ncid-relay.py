@@ -1,25 +1,13 @@
 #!/usr/bin/python3
 #-*-coding: utf-8-*-
-
-import socket
-import re
-import paho.mqtt.client as mqtt
-import json
 import datetime
+import json
+import os
+import re
+import socket
 
-def parse_optional(ip_string, default_port, cast=(lambda x: x)):
-    ip, _, port = ip_string.partition(':')
-    port = port or default_port
-    return ip, cast(port)
+import paho.mqtt.client as mqtt
 
-def parse_args():
-    import argparse
-    parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('ncid_server')
-    parser.add_argument('mqtt_server')
-    parser.add_argument('mqtt_topic')
-    parser.add_argument('--mqtt_auth', type=str, default=None)
-    return parser.parse_args()
 
 def incoming_call(client, topic, _date, _time, _line, _nmbr, _mesg, _name):
     print("call", _date, _time, _line, _nmbr, _mesg, _name)
@@ -47,21 +35,26 @@ actions = [
      r'\*DATE\*(\d{8})'
      r'\*TIME\*(\d{4})'
      r'\*LINE\*([^*]+)'
-     r'\*NMBR\*(\d+)'
+     # r'\*NMBR\*(\d+)'  # US numbers
+     r'\*NMBR\*([\w]*-[\w]*)'  # UK numbers
      r'\*MESG\*([^*]+)'
      r'\*NAME\*([^*]+)'
      r'\*$')
      , incoming_call),
 ]
 
-def main(ncid_server, mqtt_server, mqtt_topic, mqtt_auth):
-    ncid_host, ncid_port = parse_optional(ncid_server, 3333, int)
-    mqtt_host, mqtt_port = parse_optional(mqtt_server, 1883, int)
+def main():
+    ncid_host = os.getenv('NCID_HOST')
+    ncid_port = int(os.getenv('NCID_PORT', 3333))
+    mqtt_host = os.getenv('MQTT_HOST')
+    mqtt_port = int(os.getenv('MQTT_PORT', 1883))
+    mqtt_topic = os.getenv('MQTT_TOPIC')
+    mqtt_username = os.getenv('MQTT_USER', None)
+    mqtt_password = os.getenv('MQTT_PASSWORD', None)
 
     while True:
         client = mqtt.Client()
-        if mqtt_auth:
-            mqtt_username, mqtt_password = parse_optional(mqtt_auth, None)
+        if mqtt_username:
             client.username_pw_set(mqtt_username, mqtt_password)
         client.connect(mqtt_host,
                        mqtt_port,
@@ -85,5 +78,4 @@ def main(ncid_server, mqtt_server, mqtt_topic, mqtt_auth):
             client.disconnect()
 
 if __name__ == "__main__":
-    args = parse_args()
-    main(args.ncid_server, args.mqtt_server, args.mqtt_topic, args.mqtt_auth)
+    main()
