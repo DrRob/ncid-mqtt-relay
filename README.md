@@ -31,6 +31,11 @@ ncid-mqtt-relay:
         - MQTT_USER=mqtt
         - MQTT_PASSWORD=YOURPASSWORD
         - TZ=Europe/London
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
     volumes:
         - /etc/timezone:/etc/timezone:ro
         - /etc/localtime:/etc/localtime:ro
