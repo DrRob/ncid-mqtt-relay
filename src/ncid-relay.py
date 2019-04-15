@@ -35,8 +35,7 @@ actions = [
      r'\*DATE\*(\d{8})'
      r'\*TIME\*(\d{4})'
      r'\*LINE\*([^*]+)'
-     # r'\*NMBR\*(\d+)'  # US numbers
-     r'\*NMBR\*([\w]*-[\w]*)'  # UK numbers
+     r'\*NMBR\*([^*]+)'
      r'\*MESG\*([^*]+)'
      r'\*NAME\*([^*]+)'
      r'\*$')
