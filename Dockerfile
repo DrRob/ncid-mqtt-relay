@@ -7,6 +7,7 @@ COPY requirements.txt /requirements.txt
 RUN pip install --install-option="--prefix=/install" -r /requirements.txt
 
 FROM base
+RUN apk add tzdata
 COPY --from=builder /install /usr/local
 COPY src /app
 WORKDIR /app

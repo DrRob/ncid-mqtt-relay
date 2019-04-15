@@ -30,6 +30,11 @@ ncid-mqtt-relay:
         - MQTT_TOPIC=/ncid/0800999999/
         - MQTT_USER=mqtt
         - MQTT_PASSWORD=YOURPASSWORD
+        - TZ=Europe/London
+    volumes:
+        - /etc/timezone:/etc/timezone:ro
+        - /etc/localtime:/etc/localtime:ro
+
 ```
 
 Or you can go old school and run it on your machine:
