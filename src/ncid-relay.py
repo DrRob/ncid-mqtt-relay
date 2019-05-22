@@ -23,11 +23,19 @@ def incoming_call(client, topic, _date, _time, _line, _nmbr, _mesg, _name):
     now = datetime.datetime.now()
     print(data)
     delta = abs(now - d)
-    if delta.seconds < 300:
+    if delta.seconds < 120:
         client.publish(topic, json.dumps(data))
         print("published")
     else:
-        print("delta too large")
+        print("delta too large, timestamp:", d, "now:", now)
+
+def incoming_ring(client, topic, _line, _ring, _time):
+    print("ring", _line, _ring, _time)
+    data = {"line": _line,
+            "ring": _ring,
+            "time": _time,
+            }
+    client.publish(topic, json.dumps(data))
 
 actions = [
     (re.compile(
@@ -40,6 +48,13 @@ actions = [
      r'\*NAME\*([^*]+)'
      r'\*$')
      , incoming_call),
+    (re.compile(
+     r'^CIDINFO: '
+     r'\*LINE\*([^*]+)'
+     r'\*RING\*([^*]+)'
+     r'\*TIME\*([^*]+)'
+     r'\*$')
+     , incoming_ring),
 ]
 
 def main():
